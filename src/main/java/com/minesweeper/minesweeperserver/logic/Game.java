@@ -6,6 +6,7 @@ import com.minesweeper.minesweeperserver.logic.dto.GameState;
 import com.minesweeper.minesweeperserver.logic.dto.PlayerAction;
 import com.minesweeper.minesweeperserver.logic.enums.Action;
 import com.minesweeper.minesweeperserver.logic.interfaces.Operations;
+import com.minesweeper.minesweeperserver.socket.GameUpdate;
 
 import static com.minesweeper.minesweeperserver.logic.dto.GameState.Status.LOST;
 import static com.minesweeper.minesweeperserver.logic.dto.GameState.Status.WON;
@@ -19,32 +20,53 @@ public class Game implements Operations {
         this.gameState = new GameState(gameSettings.getMines());
     }
 
+    public boolean isGameOver() {
+        return gameState.isGameOver();
+    }
+
     @Override
-    public Cell[][] playerAction(PlayerAction playerAction) {
+    public void playerAction(PlayerAction playerAction) {
         //if player makes an action after game is over - ignore
-        // TODO: bring back after logic works fine
-        //  if(gameState.isGameOver()) return board.getCells();
+        if (gameState.isGameOver()) return;
+
         Cell cell = board.getCells()[playerAction.row()][playerAction.col()];
         if (playerAction.action() == Action.FLAG) {
             // check all bomb cells are flagged, if so - game won
             if (board.allBombsCorrectlyFlagged()) {
                 gameState.setCurrentStatus(WON);
-                return board.getCells();
+                System.out.println("!!! !!! !!! GAME WON !!! !!! !!!");
+                return;
             }
-            cell.toggleFlag();
+            boolean toggleResult = cell.toggleFlag();
             // decrease remainingBombs counter
-            gameState.decreaseRemainingMines();
+            gameState.updateRemainingMines(toggleResult ? -1 : 1);
         } else if (playerAction.action() == Action.CLICK) {
             //if clicked field is bomb - game over.
             if (cell.isMine()) {
-                System.out.println("bomba" + playerAction.test());
                 gameState.setCurrentStatus(LOST);
-                return board.getCells();
+                System.out.println("!!! !!! !!! PRZEGRALES XD !!! !!! !!!");
             } else {
-               uncoverCell(playerAction.row(), playerAction.col());
+                uncoverCell(playerAction.row(), playerAction.col());
             }
         }
-        return board.getCells();
+    }
+
+    @Override
+    public GameUpdate getGameUpdate() {
+        return new GameUpdate(convertCells(board.getCells()), gameState.getRemainingMines());
+    }
+
+    private String[][] convertCells(Cell[][] cells) {
+        String[][] strings = new String[cells.length][cells[0].length];
+        for (int row = 0; row < cells.length; row++) {
+            for (int col = 0; col < cells[0].length; col++) {
+                Cell cell = cells[row][col];
+                if (cell.isVisible()) strings[row][col] = cell.getSurroundingMines() + "";
+                if (!cell.isVisible()) strings[row][col] = "□";
+                if (cell.isFlagged()) strings[row][col] = "⚑";
+            }
+        }
+        return strings;
     }
 
     private void uncoverCell(int row, int col) {
@@ -53,13 +75,24 @@ public class Game implements Operations {
         cell.setVisible(true);
         // if no bombs around - uncover fields around
         if (cell.getSurroundingMines() == 0) {
-            for (int currentRow = Math.max(0, row - 1); currentRow <= Math.min(board.getCells().length - 1, row + 1); currentRow++) {
-                for (int currentCol = Math.max(0, col - 1); currentCol <= Math.min(board.getCells()[0].length - 1, col + 1); currentCol++) {
-                    if (!board.getCells()[currentRow][currentCol].isVisible()) {
-                        uncoverCell(currentRow, currentCol);
-                    }
+            board.forEachCellAround(row, col, (currentRow, currentCol) -> {
+                if (!board.getCells()[currentRow][currentCol].isVisible()) {
+                    uncoverCell(currentRow, currentCol);
                 }
-            }
+            });
         }
+
+        // if amount of flags around is equal to surrounding bombs, uncover covered fields
+        if (board.getSurroundingFlags(row, col) == cell.getSurroundingMines()){
+            board.forEachCellAround(row, col, (currentRow, currentCol) -> {
+                if (!board.getCells()[currentRow][currentCol].isVisible() && !board.getCells()[currentRow][currentCol].isFlagged()) {
+                    uncoverCell(currentRow, currentCol);
+                }
+            });
+        }
+
+
     }
+
+
 }

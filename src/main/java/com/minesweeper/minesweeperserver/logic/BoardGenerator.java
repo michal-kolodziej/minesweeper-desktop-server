@@ -9,38 +9,7 @@ import java.util.Random;
 
 @Component
 public class BoardGenerator {
-
-    public Board generate(GameSettings gameSettings) {
-        Cell[][] cells = generateCells(gameSettings.getCols(), gameSettings.getRows(), gameSettings.getMines());
-        return new Board(cells);
-    }
-
-    private Cell[][] generateCells(int cols, int rows, int mines) {
-        Cell[][] cells = generateEmptyCells(cols, rows);
-        int minesToGenerate = mines;
-        while (minesToGenerate > 0) {
-            if (generateMine(cols, rows, cells)) {
-                minesToGenerate--;
-            }
-        }
-        calculateSurroundingMines(cells, cols, rows);
-        return cells;
-    }
-
-    private static boolean generateMine(int cols, int rows, Cell[][] cells) {
-        Random random = new Random();
-        int col = random.nextInt(cols);
-        int row = random.nextInt(rows);
-        if (cells[row][col].isMine()) {
-            return false;
-        } else {
-            cells[row][col] = new Cell(CellContent.MINE);
-            System.out.println("MINA " + row + " " + col);
-            return true;
-        }
-    }
-
-    private static Cell[][] generateEmptyCells(int cols, int rows) {
+    private static Cell[][] generateEmptyCells(int rows, int cols) {
         Cell[][] cells = new Cell[rows][cols];
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -50,31 +19,52 @@ public class BoardGenerator {
         return cells;
     }
 
-    public void calculateSurroundingMines(Cell[][] cells, int cols, int rows) {
-        int[][] mines = calculateSurroundingMinesMap(cells, cols, rows);
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                cells[row][col].setSurroundingMines(mines[row][col]);
+    public Board generate(GameSettings gameSettings) {
+        Cell[][] cells = generateEmptyCells(gameSettings.getRows(), gameSettings.getCols());
+        Board board = new Board(cells);
+        placeMines(cells, gameSettings.getMines());
+        calculateSurroundingMines(board);
+        return board;
+    }
+
+    private void placeMines(Cell[][] cells, int mines) {
+        int minesToGenerate = mines;
+        while (minesToGenerate > 0) {
+            if (generateMine(cells)) {
+                minesToGenerate--;
             }
         }
     }
 
-    private int[][] calculateSurroundingMinesMap(Cell[][] cells, int cols, int rows) {
-        int[][] mineField = new int[rows][cols];
+    private boolean generateMine(Cell[][] cells) {
+        Random random = new Random();
+        int row = random.nextInt(cells.length);
+        int col = random.nextInt(cells[0].length);
+        if (cells[row][col].isMine()) {
+            return false;
+        } else {
+            cells[row][col] = new Cell(CellContent.MINE);
+            return true;
+        }
+    }
 
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                if (cells[row][col].isMine()) {
-                    mineField[row][col] = 1; // If it's mine = 1
-                } else {
-                    for (int j = Math.max(0, row - 1); j <= Math.min(rows - 1, row + 1); j++) {
-                        for (int i = Math.max(0, col - 1); i <= Math.min(cols - 1, col + 1); i++) {
-                            mineField[j][i] += cells[row][col].isMine() ? 1 : 0; // Counting surrounding mines
-                        }
-                    }
-                }
+
+    // For mine-fields we include the mine on which we are currently.
+    void calculateSurroundingMines(Board board) {
+        Cell[][] cells = board.getCells();
+        for (int row = 0; row < cells.length; row++) {
+            for (int col = 0; col < cells[0].length; col++) {
+                cells[row][col].setSurroundingMines(getSurroundingMines(board, row, col));
             }
         }
-        return mineField;
+    }
+
+    private int getSurroundingMines(Board board, int row, int col) {
+        return board.sumCellsAround(row, col, (currentRow, currentCol) -> {
+            if (board.getCells()[currentRow][currentCol].isMine()) {
+                return 1;
+            }
+            return 0;
+        });
     }
 }

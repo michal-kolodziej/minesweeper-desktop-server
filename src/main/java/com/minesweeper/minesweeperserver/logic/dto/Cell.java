@@ -30,7 +30,8 @@ public class Cell {
         return flagged;
     }
 
-    public void toggleFlag() {
+    public boolean toggleFlag() {
         flagged = !flagged;
+        return flagged;
     }
 }

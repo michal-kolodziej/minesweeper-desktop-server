@@ -17,8 +17,8 @@ public class GameState {
         this.remainingMines = remainingMines;
         this.currentStatus = Status.ONGOING;
     }
-    public void decreaseRemainingMines(){
-        remainingMines--;
+    public void updateRemainingMines(int toAdd){
+        remainingMines += toAdd;
     }
 
     public boolean isGameOver(){
