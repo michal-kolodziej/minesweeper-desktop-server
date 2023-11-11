@@ -16,6 +16,6 @@ public class Board implements Operations {
     public BoardState playerAction(PlayerAction playerAction) {
 //        Cell[][] cells = state.getCells();
 //        Cell cell = cells[response.getCol()][response.getRow()];
-        return null;
+        return state;
     }
 }

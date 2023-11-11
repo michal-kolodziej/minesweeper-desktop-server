@@ -21,16 +21,16 @@ public class BoardState {
     public BoardState(GameSettings gameSettings) {
         this.gameSettings = gameSettings;
         this.state = new GameState(gameSettings.getMines());
-        this.cells = generateCells(gameSettings.getCols(), getGameSettings().getRows(), gameSettings.getMines());
+        generateCells(gameSettings.getCols(), getGameSettings().getRows(), gameSettings.getMines());
     }
 
-    private Cell[][] generateCells(int cols, int rows, int mines) {
+    private void generateCells(int cols, int rows, int mines) {
         Cell[][] cells = generateEmptyCells(cols, rows);
         for (int i = 0; i < mines; i++) {
             generateMine(cols, rows, cells);
         }
+        this.cells = cells;
         calculateSurroundingMines(cols, rows);
-        return cells;
     }
 
     private static void generateMine(int cols, int rows, Cell[][] cells) {

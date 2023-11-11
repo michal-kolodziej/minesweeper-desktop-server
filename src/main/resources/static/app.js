@@ -69,7 +69,7 @@ function createTable(tableData) {
       // create button
       let b1 = document.createElement('button')
       // set button text
-      b1.innerHTML = cellData;
+      b1.innerHTML = cellData.content;
       // set id - it's what will be sent to backend
       b1.title = 'row: ' + rowIndex + ' col: ' + colIndex;
       b1.className = 'game-button';
