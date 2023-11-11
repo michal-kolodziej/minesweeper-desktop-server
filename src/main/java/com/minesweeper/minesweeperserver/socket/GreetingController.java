@@ -1,11 +1,8 @@
 package com.minesweeper.minesweeperserver.socket;
 
-import com.minesweeper.minesweeperserver.socket.playeraction.Field;
-import com.minesweeper.minesweeperserver.socket.playeraction.PlayerAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -21,9 +18,8 @@ public class GreetingController {
     @MessageMapping("/hello")
     //ODPOWIEDŹ POLECI NA TEN TOPIC
     @SendTo("/topic/greetings")
-    public String[][] greeting(PlayerAction message) {
-        Field field = message.getParsedField();
-        boardState.updateField(field, message.getAction());
+    public String[][] greeting(PlayerActionDto message) {
+        boardState.updateField(message.row(), message.col(), message.action());
         return boardState.getBoard();
     }
 
