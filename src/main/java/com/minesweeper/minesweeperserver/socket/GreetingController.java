@@ -1,5 +1,9 @@
 package com.minesweeper.minesweeperserver.socket;
 
+import com.minesweeper.minesweeperserver.logic.Board;
+import com.minesweeper.minesweeperserver.logic.dto.Cell;
+import com.minesweeper.minesweeperserver.logic.dto.GameSettings;
+import com.minesweeper.minesweeperserver.logic.dto.PlayerAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -9,18 +13,13 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class GreetingController {
 
-    private BoardState boardState = new BoardState(new String[][]{
-            {"T", "T"},
-            {"T", "T"}
-    });
-
     //endpoint pod który strzelamy z websocketa
     @MessageMapping("/hello")
     //ODPOWIEDŹ POLECI NA TEN TOPIC
     @SendTo("/topic/greetings")
-    public String[][] greeting(PlayerActionDto message) {
-        boardState.updateField(message.row(), message.col(), message.action());
-        return boardState.getBoard();
+    public Cell[][] greeting(PlayerAction message) {
+        Board board = new Board(new GameSettings(7,7,7));
+        return board.playerAction(message).getCells();
     }
 
 }
