@@ -10,35 +10,41 @@ import java.util.Random;
 @Component
 public class BoardGenerator {
 
-    public Board generate(GameSettings gameSettings){
+    public Board generate(GameSettings gameSettings) {
         Cell[][] cells = generateCells(gameSettings.getCols(), gameSettings.getRows(), gameSettings.getMines());
         return new Board(cells);
     }
 
     private Cell[][] generateCells(int cols, int rows, int mines) {
         Cell[][] cells = generateEmptyCells(cols, rows);
-        for (int i = 0; i < mines; i++) {
-            generateMine(cols, rows, cells);
+        int minesToGenerate = mines;
+        while (minesToGenerate > 0) {
+            if (generateMine(cols, rows, cells)) {
+                minesToGenerate--;
+            }
         }
         calculateSurroundingMines(cells, cols, rows);
         return cells;
     }
 
-    private static void generateMine(int cols, int rows, Cell[][] cells) {
-        int col = new Random().nextInt(cols);
-        int row = new Random().nextInt(rows);
-        if (cells[col][row].isMine()) {
-            generateMine(cols, rows, cells);
+    private static boolean generateMine(int cols, int rows, Cell[][] cells) {
+        Random random = new Random();
+        int col = random.nextInt(cols);
+        int row = random.nextInt(rows);
+        if (cells[row][col].isMine()) {
+            return false;
         } else {
-            cells[col][row] = new Cell(CellContent.MINE);
+            cells[row][col] = new Cell(CellContent.MINE);
+            System.out.println("MINA " + row + " " + col);
+            return true;
         }
     }
 
     private static Cell[][] generateEmptyCells(int cols, int rows) {
-        Cell[][] cells = new Cell[cols][rows];
-        for (int i = 0; i < cols; i++) {
-            for (int j = 0; j < rows; j++) {
-                cells[i][j] = new Cell(CellContent.EMPTY);
+        Cell[][] cells = new Cell[rows][cols];
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                cells[row][col] = new Cell(CellContent.EMPTY);
             }
         }
         return cells;
@@ -46,24 +52,24 @@ public class BoardGenerator {
 
     public void calculateSurroundingMines(Cell[][] cells, int cols, int rows) {
         int[][] mines = calculateSurroundingMinesMap(cells, cols, rows);
-        for (int col = 0; col < cols; col++) {
-            for (int row = 0; row < rows; row++) {
-                cells[col][row].setSurroundingMines(mines[col][row]);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                cells[row][col].setSurroundingMines(mines[row][col]);
             }
         }
     }
 
     private int[][] calculateSurroundingMinesMap(Cell[][] cells, int cols, int rows) {
-        int[][] mineField = new int[cols][rows];
+        int[][] mineField = new int[rows][cols];
 
-        for ( int row = 0; row < rows; row++) {
+        for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 if (cells[row][col].isMine()) {
                     mineField[row][col] = 1; // If it's mine = 1
                 } else {
-                    for (int i = Math.max(0, col - 1); i <= Math.min(cols - 1, col + 1); i++) {
-                        for (int j = Math.max(0, row - 1); j <= Math.min(rows - 1, row + 1); j++) {
-                            mineField[i][j] += cells[col][row].isMine() ? 1 : 0; // Counting surrounding mines
+                    for (int j = Math.max(0, row - 1); j <= Math.min(rows - 1, row + 1); j++) {
+                        for (int i = Math.max(0, col - 1); i <= Math.min(cols - 1, col + 1); i++) {
+                            mineField[j][i] += cells[row][col].isMine() ? 1 : 0; // Counting surrounding mines
                         }
                     }
                 }

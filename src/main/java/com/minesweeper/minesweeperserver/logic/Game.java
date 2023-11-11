@@ -24,7 +24,6 @@ public class Game implements Operations {
         //if player makes an action after game is over - ignore
         // TODO: bring back after logic works fine
         //  if(gameState.isGameOver()) return board.getCells();
-
         Cell cell = board.getCells()[playerAction.row()][playerAction.col()];
         if (playerAction.action() == Action.FLAG) {
             // check all bomb cells are flagged, if so - game won
@@ -38,6 +37,7 @@ public class Game implements Operations {
         } else if (playerAction.action() == Action.CLICK) {
             //if clicked field is bomb - game over.
             if (cell.isMine()) {
+                System.out.println("bomba" + playerAction.test());
                 gameState.setCurrentStatus(LOST);
                 return board.getCells();
             } else {
@@ -53,12 +53,13 @@ public class Game implements Operations {
         cell.setVisible(true);
         // if no bombs around - uncover fields around
         if (cell.getSurroundingMines() == 0) {
-            for (int currentRow = Math.max(0, row - 1); row <= Math.min(board.getCells().length - 1, row + 1); currentRow++) {
-                for (int currentCol = Math.max(0, col - 1); col <= Math.min(board.getCells()[0].length - 1, col + 1); currentCol++) {
-                    uncoverCell(currentRow, currentCol);
+            for (int currentRow = Math.max(0, row - 1); currentRow <= Math.min(board.getCells().length - 1, row + 1); currentRow++) {
+                for (int currentCol = Math.max(0, col - 1); currentCol <= Math.min(board.getCells()[0].length - 1, col + 1); currentCol++) {
+                    if (!board.getCells()[currentRow][currentCol].isVisible()) {
+                        uncoverCell(currentRow, currentCol);
+                    }
                 }
             }
         }
     }
-
 }

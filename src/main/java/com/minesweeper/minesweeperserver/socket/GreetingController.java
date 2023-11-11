@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class GreetingController {
 
-    private final Game game = new Game(new GameSettings(7, 7, 7), new BoardGenerator());
+    private final Game game = new Game(new GameSettings(16, 30, 99), new BoardGenerator());
     //endpoint pod który strzelamy z websocketa
     @MessageMapping("/hello")
     //ODPOWIEDŹ POLECI NA TEN TOPIC
