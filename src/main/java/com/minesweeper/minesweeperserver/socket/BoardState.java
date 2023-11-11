@@ -1,7 +1,5 @@
 package com.minesweeper.minesweeperserver.socket;
 
-import com.minesweeper.minesweeperserver.socket.playeraction.Field;
-
 public class BoardState {
     String[][] board;
 
@@ -13,7 +11,7 @@ public class BoardState {
         return board;
     }
 
-    public void updateField(Field field, String newValue){
-        board[field.getXCoord()][field.getYCoord()] = newValue;
+    public void updateField(int row, int col, String newValue){
+        board[row][col] = newValue;
     }
 }
