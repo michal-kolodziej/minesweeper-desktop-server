@@ -1,6 +1,7 @@
 package com.minesweeper.minesweeperserver.socket;
 
-import com.minesweeper.minesweeperserver.logic.Board;
+import com.minesweeper.minesweeperserver.logic.BoardGenerator;
+import com.minesweeper.minesweeperserver.logic.Game;
 import com.minesweeper.minesweeperserver.logic.dto.Cell;
 import com.minesweeper.minesweeperserver.logic.dto.GameSettings;
 import com.minesweeper.minesweeperserver.logic.dto.PlayerAction;
@@ -13,13 +14,26 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class GreetingController {
 
+    private final Game game = new Game(new GameSettings(7, 7, 7), new BoardGenerator());
     //endpoint pod który strzelamy z websocketa
     @MessageMapping("/hello")
     //ODPOWIEDŹ POLECI NA TEN TOPIC
     @SendTo("/topic/greetings")
-    public Cell[][] greeting(PlayerAction message) {
-        Board board = new Board(new GameSettings(7,7,7));
-        return board.playerAction(message).getCells();
+    public String[][] greeting(PlayerAction message) {
+        return convertNaPale(game.playerAction(message));
+    }
+
+    private String[][] convertNaPale(Cell[][] cells) {
+        String[][] strings = new String[cells.length][cells[0].length];
+        for (int row = 0; row < cells.length; row++) {
+            for (int col = 0; col < cells[0].length; col++) {
+                Cell cell = cells[row][col];
+                if(cell.isVisible()) strings[row][col] = cell.getSurroundingMines() + "";
+                if(!cell.isVisible()) strings[row][col] = "?";
+                if(cell.isFlagged()) strings[row][col] = "F";
+            }
+        }
+        return strings;
     }
 
 }
