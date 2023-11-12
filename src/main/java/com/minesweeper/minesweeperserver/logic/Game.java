@@ -62,7 +62,7 @@ public class Game implements Operations {
             for (int col = 0; col < cells[0].length; col++) {
                 Cell cell = cells[row][col];
                 if (cell.isVisible()) strings[row][col] = cell.getSurroundingMines() + "";
-                if (!cell.isVisible()) strings[row][col] = "□";
+                if (!cell.isVisible()) strings[row][col] = "";
                 if (cell.isFlagged()) strings[row][col] = "⚑";
             }
         }
@@ -83,16 +83,12 @@ public class Game implements Operations {
         }
 
         // if amount of flags around is equal to surrounding bombs, uncover covered fields
-        if (board.getSurroundingFlags(row, col) == cell.getSurroundingMines()){
+        if (board.getSurroundingFlags(row, col) == cell.getSurroundingMines()) {
             board.forEachCellAround(row, col, (currentRow, currentCol) -> {
                 if (!board.getCells()[currentRow][currentCol].isVisible() && !board.getCells()[currentRow][currentCol].isFlagged()) {
                     uncoverCell(currentRow, currentCol);
                 }
             });
         }
-
-
     }
-
-
 }
