@@ -40,7 +40,9 @@ public class Board {
     void forEachCellAround(int row, int col, BiConsumer<Integer, Integer> cellProcessor){
         for (int currentRow = Math.max(0, row - 1); currentRow <= Math.min(cells.length - 1, row + 1); currentRow++) {
             for (int currentCol = Math.max(0, col - 1); currentCol <= Math.min(cells[0].length - 1, col + 1); currentCol++) {
-                cellProcessor.accept(currentRow, currentCol);
+                if (currentRow != row || currentCol != col){
+                    cellProcessor.accept(currentRow, currentCol);
+                }
             }
         }
     }
@@ -50,7 +52,9 @@ public class Board {
         int sum = 0;
         for (int currentRow = Math.max(0, row - 1); currentRow <= Math.min(cells.length - 1, row + 1); currentRow++) {
             for (int currentCol = Math.max(0, col - 1); currentCol <= Math.min(cells[0].length - 1, col + 1); currentCol++) {
-                sum += cellProcessor.apply(currentRow, currentCol);
+                if (currentRow != row || currentCol != col) {
+                    sum += cellProcessor.apply(currentRow, currentCol);
+                }
             }
         }
         return sum;

@@ -31,12 +31,6 @@ public class Game implements Operations {
 
         Cell cell = board.getCells()[playerAction.row()][playerAction.col()];
         if (playerAction.action() == Action.FLAG) {
-            // check all bomb cells are flagged, if so - game won
-            if (board.allBombsCorrectlyFlagged()) {
-                gameState.setCurrentStatus(WON);
-                System.out.println("!!! !!! !!! GAME WON !!! !!! !!!");
-                return;
-            }
             boolean toggleResult = cell.toggleFlag();
             // decrease remainingBombs counter
             gameState.updateRemainingMines(toggleResult ? -1 : 1);
@@ -48,6 +42,11 @@ public class Game implements Operations {
             } else {
                 uncoverCell(playerAction.row(), playerAction.col());
             }
+        }
+        // check all bomb cells are flagged, if so - game won
+        if (board.allBombsCorrectlyFlagged()) {
+            gameState.setCurrentStatus(WON);
+            System.out.println("!!! !!! !!! GAME WON !!! !!! !!!");
         }
     }
 
