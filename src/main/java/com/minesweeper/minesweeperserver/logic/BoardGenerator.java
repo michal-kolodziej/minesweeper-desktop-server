@@ -9,6 +9,9 @@ import java.util.Random;
 
 @Component
 public class BoardGenerator {
+
+    private final Random random = new Random();
+
     private static Cell[][] generateEmptyCells(int rows, int cols) {
         Cell[][] cells = new Cell[rows][cols];
         for (int row = 0; row < rows; row++) {
@@ -37,7 +40,6 @@ public class BoardGenerator {
     }
 
     private boolean generateMine(Cell[][] cells) {
-        Random random = new Random();
         int row = random.nextInt(cells.length);
         int col = random.nextInt(cells[0].length);
         if (cells[row][col].isMine()) {

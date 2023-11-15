@@ -40,6 +40,7 @@ public class Game implements Operations {
                 gameState.setCurrentStatus(LOST);
                 System.out.println("!!! !!! !!! PRZEGRALES XD !!! !!! !!!");
             } else {
+                // this can also cause game over
                 uncoverCell(playerAction.row(), playerAction.col());
             }
         }
@@ -71,7 +72,12 @@ public class Game implements Operations {
     private void uncoverCell(int row, int col) {
         Cell cell = board.getCells()[row][col];
         // set clicked non-bomb cell visible
-        cell.setVisible(true);
+        if(!cell.isMine()){
+            cell.setVisible(true);
+        } else {
+            gameState.setCurrentStatus(LOST);
+            return;
+        }
         // if no bombs around - uncover fields around
         if (cell.getSurroundingMines() == 0) {
             board.forEachCellAround(row, col, (currentRow, currentCol) -> {
