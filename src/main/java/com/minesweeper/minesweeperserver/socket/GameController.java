@@ -9,15 +9,15 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @RequiredArgsConstructor
-public class GreetingController {
+public class GameController {
 
     private final GameManager gameManager;
 
     //endpoint pod który strzelamy z websocketa
-    @MessageMapping("/hello")
+    @MessageMapping("/player-action")
     //ODPOWIEDŹ POLECI NA TEN TOPIC
-    @SendTo("/topic/greetings")
-    public GameUpdate greeting(PlayerAction message) {
+    @SendTo("/topic/game-update")
+    public GameUpdate playerAction(PlayerAction message) {
         gameManager.playerAction(message);
         return gameManager.getGameUpdate();
     }
