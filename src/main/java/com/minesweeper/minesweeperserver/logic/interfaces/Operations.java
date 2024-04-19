@@ -1,9 +1,11 @@
 package com.minesweeper.minesweeperserver.logic.interfaces;
 
-import com.minesweeper.minesweeperserver.logic.BoardState;
 import com.minesweeper.minesweeperserver.logic.dto.PlayerAction;
+import com.minesweeper.minesweeperserver.socket.GameUpdate;
 
 public interface Operations {
 
-    BoardState playerAction(PlayerAction playerAction);
+    void playerAction(PlayerAction playerAction);
+
+    GameUpdate getGameUpdate();
 }

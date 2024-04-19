@@ -9,10 +9,22 @@ import java.util.Date;
 @NoArgsConstructor
 public class GameState {
     private Date startDate;
-    private int remainingBombs;
+    private int remainingMines;
+    private Status currentStatus;
 
-    public GameState(int remainingBombs) {
+    public GameState(int remainingMines) {
         this.startDate = new Date();
-        this.remainingBombs = remainingBombs;
+        this.remainingMines = remainingMines;
+        this.currentStatus = Status.ONGOING;
+    }
+    public void updateRemainingMines(int toAdd){
+        remainingMines += toAdd;
+    }
+
+    public boolean isGameOver(){
+        return currentStatus != Status.ONGOING;
+    }
+    public enum Status {
+        WON, LOST, ONGOING
     }
 }
