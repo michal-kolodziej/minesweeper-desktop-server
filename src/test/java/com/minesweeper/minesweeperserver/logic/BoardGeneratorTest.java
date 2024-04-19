@@ -1,7 +1,5 @@
 package com.minesweeper.minesweeperserver.logic;
 
-import com.minesweeper.minesweeperserver.logic.dto.Cell;
-import com.minesweeper.minesweeperserver.logic.enums.CellContent;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertAll;

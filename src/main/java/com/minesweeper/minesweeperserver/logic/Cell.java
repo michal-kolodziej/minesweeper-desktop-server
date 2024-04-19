@@ -1,6 +1,5 @@
-package com.minesweeper.minesweeperserver.logic.dto;
+package com.minesweeper.minesweeperserver.logic;
 
-import com.minesweeper.minesweeperserver.logic.enums.CellContent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

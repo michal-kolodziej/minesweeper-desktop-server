@@ -1,7 +1,5 @@
 package com.minesweeper.minesweeperserver.logic;
 
-import com.minesweeper.minesweeperserver.logic.dto.Cell;
-import com.minesweeper.minesweeperserver.logic.enums.CellContent;
 import org.apache.logging.log4j.util.BiConsumer;
 import org.junit.jupiter.api.Test;
 
