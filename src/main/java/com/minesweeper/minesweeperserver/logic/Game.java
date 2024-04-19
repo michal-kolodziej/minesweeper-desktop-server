@@ -1,44 +1,40 @@
 package com.minesweeper.minesweeperserver.logic;
 
-import com.minesweeper.minesweeperserver.logic.dto.Cell;
-import com.minesweeper.minesweeperserver.logic.dto.GameSettings;
-import com.minesweeper.minesweeperserver.logic.dto.GameState;
-import com.minesweeper.minesweeperserver.logic.dto.PlayerAction;
-import com.minesweeper.minesweeperserver.logic.enums.Action;
-import com.minesweeper.minesweeperserver.logic.interfaces.Operations;
 import com.minesweeper.minesweeperserver.socket.GameUpdate;
 
-import static com.minesweeper.minesweeperserver.logic.dto.GameState.Status.LOST;
-import static com.minesweeper.minesweeperserver.logic.dto.GameState.Status.WON;
+import static com.minesweeper.minesweeperserver.logic.GameStatus.LOST;
+import static com.minesweeper.minesweeperserver.logic.GameStatus.WON;
 
-public class Game implements Operations {
+public class Game {
     private final Board board;
     private final GameState gameState;
+    private final GameEventHandler gameEventHandler;
 
-    public Game(GameSettings gameSettings, BoardGenerator boardGenerator) {
+    public Game(GameSettings gameSettings, BoardGenerator boardGenerator, GameEventHandler gameEventHandler) {
         this.board = boardGenerator.generate(gameSettings);
         this.gameState = new GameState(gameSettings.getMines());
+        this.gameEventHandler = gameEventHandler;
+        gameEventHandler.onNewGame();
     }
 
     public boolean isGameOver() {
         return gameState.isGameOver();
     }
 
-    @Override
     public void playerAction(PlayerAction playerAction) {
         //if player makes an action after game is over - ignore
         if (gameState.isGameOver()) return;
 
         Cell cell = board.getCells()[playerAction.row()][playerAction.col()];
-        if (playerAction.action() == Action.FLAG) {
+        if (playerAction.action() == PlayerActionType.FLAG) {
             boolean toggleResult = cell.toggleFlag();
             // decrease remainingBombs counter
             gameState.updateRemainingMines(toggleResult ? -1 : 1);
-        } else if (playerAction.action() == Action.CLICK) {
+        } else if (playerAction.action() == PlayerActionType.CLICK) {
             //if clicked field is bomb - game over.
             if (cell.isMine()) {
+                gameEventHandler.onGameOver(LOST, playerAction);
                 gameState.setCurrentStatus(LOST);
-                System.out.println("!!! !!! !!! PRZEGRALES XD !!! !!! !!!");
             } else {
                 // this can also cause game over
                 uncoverCell(playerAction.row(), playerAction.col());
@@ -46,12 +42,11 @@ public class Game implements Operations {
         }
         // check all bomb cells are flagged, if so - game won
         if (board.allBombsCorrectlyFlagged()) {
+            gameEventHandler.onGameOver(WON, playerAction);
             gameState.setCurrentStatus(WON);
             System.out.println("!!! !!! !!! GAME WON !!! !!! !!!");
         }
     }
-
-    @Override
     public GameUpdate getGameUpdate() {
         return new GameUpdate(convertCells(board.getCells()), gameState.getRemainingMines());
     }

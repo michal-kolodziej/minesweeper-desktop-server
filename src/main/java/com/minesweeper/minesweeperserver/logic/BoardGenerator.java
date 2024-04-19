@@ -1,8 +1,5 @@
 package com.minesweeper.minesweeperserver.logic;
 
-import com.minesweeper.minesweeperserver.logic.dto.Cell;
-import com.minesweeper.minesweeperserver.logic.dto.GameSettings;
-import com.minesweeper.minesweeperserver.logic.enums.CellContent;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;

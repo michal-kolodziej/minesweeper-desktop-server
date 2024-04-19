@@ -1,6 +1,5 @@
 package com.minesweeper.minesweeperserver.logic;
 
-import com.minesweeper.minesweeperserver.logic.dto.Cell;
 import org.apache.logging.log4j.util.BiConsumer;
 
 import java.util.function.BiFunction;

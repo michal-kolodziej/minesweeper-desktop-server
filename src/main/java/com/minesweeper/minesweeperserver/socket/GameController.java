@@ -1,6 +1,6 @@
 package com.minesweeper.minesweeperserver.socket;
 
-import com.minesweeper.minesweeperserver.logic.dto.PlayerAction;
+import com.minesweeper.minesweeperserver.logic.PlayerAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;

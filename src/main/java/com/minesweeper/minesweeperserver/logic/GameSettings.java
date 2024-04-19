@@ -1,4 +1,4 @@
-package com.minesweeper.minesweeperserver.logic.dto;
+package com.minesweeper.minesweeperserver.logic;
 
 import lombok.Data;
 
