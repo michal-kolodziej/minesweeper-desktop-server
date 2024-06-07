@@ -18,7 +18,7 @@ public class GameController {
     //ODPOWIEDŹ POLECI NA TEN TOPIC
     @SendTo("/topic/game-update")
     public GameUpdate playerAction(PlayerAction message) {
-        gameManager.playerAction(message);
+        gameManager.playerActionWithReinitialize(message);
         return gameManager.getGameUpdate();
     }
 }

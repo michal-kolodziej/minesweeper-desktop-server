@@ -1,6 +1,11 @@
 package com.minesweeper.minesweeperserver.logic;
 
 import com.minesweeper.minesweeperserver.socket.GameUpdate;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static com.minesweeper.minesweeperserver.logic.GameStatus.LOST;
 import static com.minesweeper.minesweeperserver.logic.GameStatus.WON;
@@ -8,13 +13,15 @@ import static com.minesweeper.minesweeperserver.logic.GameStatus.WON;
 public class Game {
     private final Board board;
     private final GameState gameState;
-    private final GameEventHandler gameEventHandler;
+    private final BiConsumer<PlayerAction, List<Pair<Integer, Integer>>> onGameLost;
+    private final Consumer<PlayerAction> onGameWon;
 
-    public Game(GameSettings gameSettings, BoardGenerator boardGenerator, GameEventHandler gameEventHandler) {
+    public Game(GameSettings gameSettings, BoardGenerator boardGenerator, BiConsumer<PlayerAction, List<Pair<Integer, Integer>>> onGameLostCallback,
+                Consumer<PlayerAction> onGameWonCallback) {
         this.board = boardGenerator.generate(gameSettings);
         this.gameState = new GameState(gameSettings.getMines());
-        this.gameEventHandler = gameEventHandler;
-        gameEventHandler.onNewGame();
+        this.onGameLost = onGameLostCallback;
+        this.onGameWon = onGameWonCallback;
     }
 
     public boolean isGameOver() {
@@ -33,7 +40,7 @@ public class Game {
         } else if (playerAction.action() == PlayerActionType.CLICK) {
             //if clicked field is bomb - game over.
             if (cell.isMine()) {
-                gameEventHandler.onGameOver(LOST, playerAction);
+                onGameLost.accept(playerAction, board.getMineLocations());
                 gameState.setCurrentStatus(LOST);
             } else {
                 // this can also cause game over
@@ -42,26 +49,13 @@ public class Game {
         }
         // check all bomb cells are flagged, if so - game won
         if (board.allBombsCorrectlyFlagged()) {
-            gameEventHandler.onGameOver(WON, playerAction);
+            onGameWon.accept(playerAction);
             gameState.setCurrentStatus(WON);
             System.out.println("!!! !!! !!! GAME WON !!! !!! !!!");
         }
     }
     public GameUpdate getGameUpdate() {
-        return new GameUpdate(convertCells(board.getCells()), gameState.getRemainingMines());
-    }
-
-    private String[][] convertCells(Cell[][] cells) {
-        String[][] strings = new String[cells.length][cells[0].length];
-        for (int row = 0; row < cells.length; row++) {
-            for (int col = 0; col < cells[0].length; col++) {
-                Cell cell = cells[row][col];
-                if (cell.isVisible()) strings[row][col] = cell.getSurroundingMines() + "";
-                if (!cell.isVisible()) strings[row][col] = "";
-                if (cell.isFlagged()) strings[row][col] = "⚑";
-            }
-        }
-        return strings;
+        return new GameUpdate(board.getCells(), gameState.getRemainingMines());
     }
 
     private void uncoverCell(int row, int col) {
