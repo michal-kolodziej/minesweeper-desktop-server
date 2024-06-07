@@ -27,7 +27,7 @@ public class GameManager {
     }
 
     private void onGameWon(PlayerAction playerAction) {
-
+        gameServer.sendToAll(OutgoingMessageFactory.gameWon());
     }
 
     private void onGameLost(PlayerAction playerAction, List<Pair<Integer, Integer>> pairs) {

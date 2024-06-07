@@ -35,4 +35,8 @@ public class OutgoingMessageFactory {
         mineLocations.forEach(location -> sb.append(location.getLeft()).append(",").append(location.getRight()).append(","));
         return sb.toString();
     }
+
+    public static String gameWon() {
+        return "GAMEWON";
+    }
 }

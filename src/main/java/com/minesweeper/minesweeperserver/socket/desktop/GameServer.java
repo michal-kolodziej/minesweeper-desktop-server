@@ -21,7 +21,7 @@ public class GameServer {
     private Consumer<ConnectionHandler> onClientConnected = (connectionHandler) -> {
     };
 
-    GameServer(@Value("${server.port:2137}") int port) throws IOException {
+    GameServer(@Value("${server.port:31415}") int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
     }
 

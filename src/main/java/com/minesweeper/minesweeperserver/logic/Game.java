@@ -34,18 +34,9 @@ public class Game {
 
         Cell cell = board.getCells()[playerAction.row()][playerAction.col()];
         if (playerAction.action() == PlayerActionType.FLAG) {
-            boolean toggleResult = cell.toggleFlag();
-            // decrease remainingBombs counter
-            gameState.updateRemainingMines(toggleResult ? -1 : 1);
+            handleFlagClicked(cell);
         } else if (playerAction.action() == PlayerActionType.CLICK) {
-            //if clicked field is bomb - game over.
-            if (cell.isMine()) {
-                onGameLost.accept(playerAction, board.getMineLocations());
-                gameState.setCurrentStatus(LOST);
-            } else {
-                // this can also cause game over
-                uncoverCell(playerAction.row(), playerAction.col());
-            }
+            handleClick(cell, playerAction);
         }
         // check all bomb cells are flagged, if so - game won
         if (board.allBombsCorrectlyFlagged()) {
@@ -54,6 +45,26 @@ public class Game {
             System.out.println("!!! !!! !!! GAME WON !!! !!! !!!");
         }
     }
+
+    private void handleClick(Cell cell, PlayerAction playerAction) {
+        //if clicked field is bomb - game over.
+        if (cell.isMine()) {
+            onGameLost.accept(playerAction, board.getMineLocations());
+            gameState.setCurrentStatus(LOST);
+        } else if (cell.isFlagged()) {
+            // do nothing
+        } else {
+            // this can also cause game over
+            uncoverCell(playerAction.row(), playerAction.col());
+        }
+    }
+
+    private void handleFlagClicked(Cell cell) {
+        boolean toggleResult = cell.toggleFlag();
+        // decrease remainingBombs counter
+        gameState.updateRemainingMines(toggleResult ? -1 : 1);
+    }
+
     public GameUpdate getGameUpdate() {
         return new GameUpdate(board.getCells(), gameState.getRemainingMines());
     }
