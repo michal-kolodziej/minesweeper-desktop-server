@@ -47,19 +47,13 @@ public class Game {
     }
 
     private void handleClick(Cell cell, PlayerAction playerAction) {
+        if (cell.isFlagged()) return;
         //if clicked field is bomb - game over.
-        if (cell.isMine()) {
-            onGameLost.accept(playerAction, board.getMineLocations());
-            gameState.setCurrentStatus(LOST);
-        } else if (cell.isFlagged()) {
-            // do nothing
-        } else {
-            // this can also cause game over
-            uncoverCell(playerAction.row(), playerAction.col());
-        }
+        uncoverCell(playerAction.row(), playerAction.col(), playerAction);
     }
 
     private void handleFlagClicked(Cell cell) {
+        if (cell.isVisible()) return;
         boolean toggleResult = cell.toggleFlag();
         // decrease remainingBombs counter
         gameState.updateRemainingMines(toggleResult ? -1 : 1);
@@ -69,20 +63,22 @@ public class Game {
         return new GameUpdate(board.getCells(), gameState.getRemainingMines());
     }
 
-    private void uncoverCell(int row, int col) {
+    private void uncoverCell(int row, int col, PlayerAction playerAction) {
         Cell cell = board.getCells()[row][col];
         // set clicked non-bomb cell visible
-        if(!cell.isMine()){
+        if (!cell.isMine()) {
             cell.setVisible(true);
         } else {
+            //attempt to uncover a cell which is a mine
             gameState.setCurrentStatus(LOST);
+            onGameLost.accept(playerAction, board.getMineLocations());
             return;
         }
         // if no bombs around - uncover fields around
         if (cell.getSurroundingMines() == 0) {
             board.forEachCellAround(row, col, (currentRow, currentCol) -> {
                 if (!board.getCells()[currentRow][currentCol].isVisible()) {
-                    uncoverCell(currentRow, currentCol);
+                    uncoverCell(currentRow, currentCol, playerAction);
                 }
             });
         }
@@ -91,7 +87,7 @@ public class Game {
         if (board.getSurroundingFlags(row, col) == cell.getSurroundingMines()) {
             board.forEachCellAround(row, col, (currentRow, currentCol) -> {
                 if (!board.getCells()[currentRow][currentCol].isVisible() && !board.getCells()[currentRow][currentCol].isFlagged()) {
-                    uncoverCell(currentRow, currentCol);
+                    uncoverCell(currentRow, currentCol, playerAction);
                 }
             });
         }

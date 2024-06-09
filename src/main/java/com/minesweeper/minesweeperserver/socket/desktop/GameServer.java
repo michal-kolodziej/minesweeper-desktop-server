@@ -1,6 +1,7 @@
 package com.minesweeper.minesweeperserver.socket.desktop;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Component
+@Async
 public class GameServer {
     private final List<ConnectionHandler> activeConnections = new ArrayList<>();
     private final ServerSocket serverSocket;
@@ -21,7 +23,7 @@ public class GameServer {
     private Consumer<ConnectionHandler> onClientConnected = (connectionHandler) -> {
     };
 
-    GameServer(@Value("${server.port:31415}") int port) throws IOException {
+    GameServer(@Value("${server.port:20667}") int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
     }
 

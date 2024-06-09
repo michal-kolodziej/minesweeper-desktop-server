@@ -7,6 +7,7 @@ import com.minesweeper.minesweeperserver.socket.desktop.IncomingMessageParser;
 import com.minesweeper.minesweeperserver.socket.desktop.OutgoingMessageFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -15,10 +16,12 @@ import java.util.List;
 @Component
 public class GameManager {
     private final GameSettings defaultGameSettings = GameSettings.EXPERT;
+    private final SimpMessagingTemplate template;
     private final GameServer gameServer;
     private Game game;
 
-    public GameManager(GameServer gameServer) {
+    public GameManager(SimpMessagingTemplate template, GameServer gameServer) {
+        this.template = template;
         game = new Game(defaultGameSettings, new BoardGenerator(), this::onGameLost, this::onGameWon);
         gameServer.setOnClientMessageReceived(this::onClientMessageReceived);
         gameServer.setOnClientConnected(this::onClientConnected);
@@ -48,11 +51,9 @@ public class GameManager {
         } else if (receivedMessage.startsWith("CLICK")) {
             Pair<Integer, Integer> click = IncomingMessageParser.click(receivedMessage);
             playerActionWithReinitialize(new PlayerAction(click.getRight(), click.getLeft(), PlayerActionType.CLICK, sender.clientId));
-            gameServer.sendToAll(OutgoingMessageFactory.gameUpdate(getGameUpdate().getBoard()));
         } else if (receivedMessage.startsWith("FLAG")) {
             Pair<Integer, Integer> click = IncomingMessageParser.flag(receivedMessage);
             playerActionWithReinitialize(new PlayerAction(click.getRight(), click.getLeft(), PlayerActionType.FLAG, sender.clientId));
-            gameServer.sendToAll(OutgoingMessageFactory.gameUpdate(getGameUpdate().getBoard()));
         }
     }
 
@@ -66,5 +67,7 @@ public class GameManager {
         } else {
             game = new Game(defaultGameSettings, new BoardGenerator(), this::onGameLost, this::onGameWon);
         }
+        gameServer.sendToAll(OutgoingMessageFactory.gameUpdate(getGameUpdate().getBoard()));
+        template.convertAndSend("/topic/game-update", getGameUpdate());
     }
 }
