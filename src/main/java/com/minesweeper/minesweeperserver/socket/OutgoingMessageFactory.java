@@ -1,4 +1,4 @@
-package com.minesweeper.minesweeperserver.socket.desktop;
+package com.minesweeper.minesweeperserver.socket;
 
 import org.apache.commons.lang3.tuple.Pair;
 

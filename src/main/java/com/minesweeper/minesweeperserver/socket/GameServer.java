@@ -1,4 +1,4 @@
-package com.minesweeper.minesweeperserver.socket.desktop;
+package com.minesweeper.minesweeperserver.socket;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;

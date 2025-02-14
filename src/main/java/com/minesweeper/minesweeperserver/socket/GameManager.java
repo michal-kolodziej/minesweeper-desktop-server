@@ -1,13 +1,8 @@
 package com.minesweeper.minesweeperserver.socket;
 
 import com.minesweeper.minesweeperserver.logic.*;
-import com.minesweeper.minesweeperserver.socket.desktop.ConnectionHandler;
-import com.minesweeper.minesweeperserver.socket.desktop.GameServer;
-import com.minesweeper.minesweeperserver.socket.desktop.IncomingMessageParser;
-import com.minesweeper.minesweeperserver.socket.desktop.OutgoingMessageFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -16,12 +11,10 @@ import java.util.List;
 @Component
 public class GameManager {
     private final GameSettings defaultGameSettings = GameSettings.EXPERT;
-    private final SimpMessagingTemplate template;
     private final GameServer gameServer;
     private Game game;
 
-    public GameManager(SimpMessagingTemplate template, GameServer gameServer) {
-        this.template = template;
+    public GameManager(GameServer gameServer) {
         game = new Game(defaultGameSettings, new BoardGenerator(), this::onGameLost, this::onGameWon);
         gameServer.setOnClientMessageReceived(this::onClientMessageReceived);
         gameServer.setOnClientConnected(this::onClientConnected);
@@ -68,6 +61,5 @@ public class GameManager {
             game = new Game(defaultGameSettings, new BoardGenerator(), this::onGameLost, this::onGameWon);
         }
         gameServer.sendToAll(OutgoingMessageFactory.gameUpdate(getGameUpdate().getBoard()));
-        template.convertAndSend("/topic/game-update", getGameUpdate());
     }
 }

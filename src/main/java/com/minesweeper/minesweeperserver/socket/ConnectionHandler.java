@@ -1,4 +1,4 @@
-package com.minesweeper.minesweeperserver.socket.desktop;
+package com.minesweeper.minesweeperserver.socket;
 
 import java.io.BufferedReader;
 import java.io.IOException;
